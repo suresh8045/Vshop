@@ -30,7 +30,8 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.Menu;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener
+        ,DashboardFragment.OnDashBoardFragmentInteractionListener{
 
     public static final String TAG="MainActivity";
     FragmentTransaction fragmentTransaction;
@@ -150,5 +151,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void OnDashBoardFragmentInteraction(String uri) {
+
     }
 }
