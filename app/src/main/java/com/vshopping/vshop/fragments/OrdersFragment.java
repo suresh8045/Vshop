@@ -1,5 +1,6 @@
 package com.vshopping.vshop.fragments;
 
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Context;
@@ -17,52 +18,67 @@ import android.view.ViewGroup;
 
 import com.vshopping.vshop.MainActivity;
 import com.vshopping.vshop.R;
+import com.vshopping.vshop.adapters.OrdersAdapter;
 import com.vshopping.vshop.adapters.PendingOrdersAdapter;
+import com.vshopping.vshop.room.Model.Order;
 import com.vshopping.vshop.room.Model.PendingOrder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DashboardFragment extends Fragment {
+public class OrdersFragment extends Fragment {
 
-    private DashboardViewModel mViewModel;
-    RecyclerView pendingOrdersRecyclerview;
+    private OrdersViewModel mViewModel;
     private MainActivity mActivity;
-    private OnDashBoardFragmentInteractionListener mListener;
-    List<PendingOrder> pendingOrderList=new ArrayList<>();
+    private OnOrdersFragmentInteractionListener mListener;
+    private RecyclerView ordersRecyclerView;
+    OrdersAdapter ordersAdapter;
 
-    public static DashboardFragment newInstance() {
-        return new DashboardFragment();
+    List<Order> ordersList=new ArrayList<>();
+
+    public static OrdersFragment newInstance() {
+        return new OrdersFragment();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dash_board_fragment, container, false);
-        pendingOrdersRecyclerview = view.findViewById(R.id.pending_orders_recyclerview);
-        pendingOrdersRecyclerview.setLayoutManager(new LinearLayoutManager(mActivity, RecyclerView.HORIZONTAL,false));
-        pendingOrdersRecyclerview.setHasFixedSize(true);
+        View view = inflater.inflate(R.layout.orders_fragment, container, false);
+        ordersRecyclerView = view.findViewById(R.id.orders_recyclerview);
 
-        final PendingOrdersAdapter pendingOrdersAdapter = new PendingOrdersAdapter();
-        pendingOrdersRecyclerview.setAdapter(pendingOrdersAdapter);
+        ordersRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity, RecyclerView.VERTICAL,false));
+        ordersRecyclerView.setHasFixedSize(true);
 
-        for(int i=0; i<3; i++){
+        ordersAdapter = new OrdersAdapter();
+        ordersRecyclerView.setAdapter(ordersAdapter);
+
+      /*  for(int i=0; i<3; i++){
             PendingOrder pendingOrder = new PendingOrder();
             pendingOrder.setTitle("Ring "+i);
             pendingOrder.setDescription("Ring desc "+i);
             pendingOrder.setTitle("priority "+i);
-            pendingOrderList.add(pendingOrder);
-        }
+            ordersList.add(pendingOrder);
+        }*/
 
-        pendingOrdersAdapter.setPendingOrders(pendingOrderList);
-
+        ordersAdapter.setOrders(ordersList);
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(DashboardViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(OrdersViewModel.class);
+
+        mViewModel.getOrdersLiveData().observe(getViewLifecycleOwner(), new Observer<List<Order>>() {
+            @Override
+            public void onChanged(List<Order> orders) {
+                if(orders!=null){
+                    if(ordersAdapter!=null){
+                        ordersAdapter.setOrders(orders);
+                    }
+                }
+            }
+        });
         // TODO: Use the ViewModel
     }
 
@@ -72,8 +88,8 @@ public class DashboardFragment extends Fragment {
         if(context instanceof MainActivity){
             mActivity = (MainActivity)context;
         }
-        if (context instanceof OnDashBoardFragmentInteractionListener) {
-            mListener = (OnDashBoardFragmentInteractionListener) context;
+        if (context instanceof OnOrdersFragmentInteractionListener) {
+            mListener = (OnOrdersFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -86,8 +102,9 @@ public class DashboardFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnDashBoardFragmentInteractionListener {
+    public interface OnOrdersFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onDashBoardFragmentInteraction(String uri);
+        void onOrdersFragmentInteraction(String uri);
     }
+
 }

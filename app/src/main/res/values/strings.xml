@@ -25,7 +25,12 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_create_order">CreateOrderActivity</string>
     <string name="next">Next</string>
+    <string name="create_order">Create order</string>
     <string name="pending_balance">Total Pending Balance</string>
     <string name="pending_orders">Pending orders</string>
     <string name="title">Title</string>
+    <string name="silver">Silver</string>
+    <string name="gold">Gold</string>
+    <string name="action_backup">BAckup</string>
+    <string name="action_restore">Restore</string>
 </resources>

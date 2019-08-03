@@ -14,13 +14,13 @@ public class User {
     private String username;
     private String password;
     private String mobile;
-    private String Email;
+    private String email;
 
     public User(String username, String password, String mobile, String email) {
         this.username = username;
         this.password = password;
         this.mobile = mobile;
-        Email = email;
+        this.email = email;
     }
 
 
@@ -42,7 +42,7 @@ public class User {
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
 
@@ -65,6 +65,6 @@ public class User {
     }
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
 }

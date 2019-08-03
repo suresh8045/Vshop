@@ -12,6 +12,7 @@ public class Customer {
     @NonNull
     @PrimaryKey(autoGenerate = true)
     public int id;
+    public int customer_id;
     @NonNull
     @ColumnInfo(name = "name")
     public String customerName;
@@ -25,6 +26,14 @@ public class Customer {
 
     public void setId(@NonNull int id) {
         this.id = id;
+    }
+
+    public int getCustomer_id() {
+        return customer_id;
+    }
+
+    public void setCustomer_id(int customer_id) {
+        this.customer_id = customer_id;
     }
 
     @NonNull

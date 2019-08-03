@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
@@ -17,7 +18,12 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
+import com.vshopping.vshop.backup_restore.BackupAndRestore;
+import com.vshopping.vshop.backup_restore.DBHelper;
+import com.vshopping.vshop.backup_restore.LocalBackup;
 import com.vshopping.vshop.fragments.DashboardFragment;
+import com.vshopping.vshop.fragments.OrdersFragment;
+import com.vshopping.vshop.room.database.VshopDatabase;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -26,22 +32,37 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.view.Menu;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
-        ,DashboardFragment.OnDashBoardFragmentInteractionListener{
+        ,DashboardFragment.OnDashBoardFragmentInteractionListener
+        , OrdersFragment.OnOrdersFragmentInteractionListener {
 
     public static final String TAG="MainActivity";
+
+    public static final int REQUEST_CODE_SIGN_IN = 0;
+    public static final int REQUEST_CODE_OPENING = 1;
+    public static final int REQUEST_CODE_CREATION = 2;
+    public static final int REQUEST_CODE_PERMISSIONS = 2;
+
+
     FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
     Fragment mFragment;
+    private MainActivityViewModel mViewModel;
+    private LocalBackup localBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -82,16 +103,29 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void transactFragment(String tag){
+    public void transactFragment(int id){
 
-        if(tag.equals("")){
+        if (id == R.id.nav_home) {
             mFragment = new DashboardFragment();
+        } else if (id == R.id.nav_orders) {
+            mFragment = new OrdersFragment();
+        } else if (id == R.id.nav_accounts) {
+            //mFragment = new DashboardFragment();
+        } else if (id == R.id.nav_tools) {
+        //    mFragment = new DashboardFragment();
+        } else if (id == R.id.nav_share) {
+          //  mFragment = new DashboardFragment();
+        } else if (id == R.id.nav_send) {
+
         }
-        fragmentManager = getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, mFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+
+        if(mFragment!=null) {
+            fragmentManager = getSupportFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, mFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
     }
 
 
@@ -118,9 +152,30 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        final DBHelper db = new DBHelper(getApplicationContext());
+        Log.i(TAG, "onOptionsItemSelected: "+id);
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            mViewModel.deleteAllOrders();
+
+            return true;
+        }
+        if (id == R.id.action_backup) {
+            Log.i(TAG, "onOptionsItemSelected: ");
+            VshopDatabase vshopDatabase = VshopDatabase.getDatabase(getApplicationContext());
+            vshopDatabase.close();
+            localBackup = new LocalBackup(this);
+            String outFileName = Environment.getExternalStorageDirectory() + File.separator + getResources().getString(R.string.app_name) + File.separator;
+            localBackup.performBackup(db, outFileName);
+            //BackupAndRestore.exportDB(this);
+            return true;
+        }
+        if (id == R.id.action_restore) {
+            VshopDatabase vshopDatabase = VshopDatabase.getDatabase(getApplicationContext());
+            vshopDatabase.close();
+            localBackup = new LocalBackup(this);
+            localBackup.performRestore(db);
+            //BackupAndRestore.importDB(this);
             return true;
         }
 
@@ -135,15 +190,15 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_home) {
             // Handle the camera action
-            transactFragment("");
+            transactFragment(id);
         } else if (id == R.id.nav_orders) {
-
+            transactFragment(id);
         } else if (id == R.id.nav_accounts) {
-
+            transactFragment(id);
         } else if (id == R.id.nav_tools) {
-
+            transactFragment(id);
         } else if (id == R.id.nav_share) {
-
+            transactFragment(id);
         } else if (id == R.id.nav_send) {
 
         }
@@ -154,7 +209,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnDashBoardFragmentInteraction(String uri) {
+    public void onDashBoardFragmentInteraction(String uri) {
+
+    }
+
+    @Override
+    public void onOrdersFragmentInteraction(String uri) {
 
     }
 }
